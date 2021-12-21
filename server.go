@@ -66,7 +66,7 @@ func setupRoutes(app *fiber.App) {
 
 func NewServer() *fiber.App {
 	app := fiber.New()
-	app.Static("/", "./frontend/build/")
+	app.Static("/", "./frontend.ts/build/")
 	setupRoutes(app)
 
 	return app
