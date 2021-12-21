@@ -1,46 +1,49 @@
 import React, { useState, FC } from "react";
 
 type Props = {
-  file: File | undefined;
+  file: File;
 };
 
 const App: FC = () => {
-  const [selectedFile, setSelectedFile] = useState<File>();
+  const [selectedFile, setSelectedFile] = useState<FileList>();
   const [isSelected, setIsSelected] = useState(false);
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return ;
 
-		setSelectedFile(e.target.files[0]);
-		setIsSelected(true);
-	};
+    setSelectedFile(e.target.files);
+    setIsSelected(true);
+  };
 
   const handleSubmission = () => {
     if (!selectedFile) return;
 
-    const formData = new FormData();
+    Array.from(selectedFile).forEach((file) => {
+      const formData = new FormData();
 
-    formData.append('file', selectedFile);
+      formData.append('file', file);
 
-    fetch('/upload',
-      {
-        method: 'POST',
-        body: formData,
-      })
-      .then((res) => res.json())
-      .then((result) => {
-        console.log('Success:', result);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+      fetch('/upload',
+            {
+              method: 'POST',
+              body: formData,
+            })
+            .then((res) => res.json())
+            .then((result) => {
+              console.log('Success:', result);
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+    });
+
   };
 
   return (
     <div>
-      <input type="file" name="file" onChange={changeHandler} />
+      <input type="file" name="file" onChange={changeHandler} multiple/>
       {isSelected ?
-        (<PrintFileInfo file={selectedFile} />) :
+        (selectedFile ? Array.from(selectedFile).map(file => <PrintFileInfo file={file} />) : <p></p>) :
         (<p>Select a file to show details</p>)
       }
       <div>
@@ -51,15 +54,14 @@ const App: FC = () => {
 }
 
 const PrintFileInfo: FC<Props> = ({file}) => {
+  const unixDate = new Date(file.lastModified)
+
   return(
     <div>
-      <p>Filename: {file?.name}</p>
-      <p>Filetype: {file?.type}</p>
-      <p>Size in bytes: {file?.size}</p>
-      <p>
-        lastModified:{' '}
-        {file?.lastModified}
-      </p>
+      <p>Filename: {file.name}</p>
+      <p>Filetype: {file.type}</p>
+      <p>Size in bytes: {file.size}</p>
+      <p>lastModified: {unixDate.toDateString()}</p>
     </div>
   )
 }
