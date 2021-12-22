@@ -40,7 +40,7 @@ func uploadFile(c *fiber.Ctx) error {
 
 	// generate image url to serve to client using CDN
 
-	imageUrl := fmt.Sprintf("http://localhost:4000/images/%s", uploadFile)
+	imageUrl := fmt.Sprintf("http:/some-url/%s", uploadFile)
 
 	// create meta data and send to client
 
@@ -66,7 +66,7 @@ func setupRoutes(app *fiber.App) {
 
 func NewServer() *fiber.App {
 	app := fiber.New()
-	app.Static("/", "./frontend.ts/build/")
+	app.Static("/", "./frontend.js/build/")
 	setupRoutes(app)
 
 	return app
